@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>💙 Maria • eu te amo 💙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b0a0f, #1a1427, #1f1935);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            color: #f2e6ff;
+            position: relative;
+            overflow-x: hidden;
+            overscroll-behavior: none; /* Evita o "puxar para recarregar" no mobile */
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:wght@400;600&display=swap');
+
+        /* Canvas das partículas (fundo interativo) */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Corações flutuantes (camada decorativa) */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .heart-float {
+            position: absolute;
+            bottom: -10vh;
+            font-size: 1.8rem;
+            opacity: 0.2;
+            color: #d9b3ff;
+            animation: floatUp 12s linear infinite;
+            filter: drop-shadow(0 0 8px #b380ff);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Card principal - agora com altura máxima e rolagem garantida */
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            max-height: 85vh;          /* Limita a altura e permite rolagem */
+            overflow-y: auto;           /* Rolagem vertical */
+            background: rgba(20, 15, 30, 0.2);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 40px;
+            padding: 30px 20px;
+            border: 1px solid rgba(224,179,255,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: opacity 0.8s ease;
+            scrollbar-width: thin;
+            scrollbar-color: #b380ff transparent;
+            -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+        }
+
+        .card::-webkit-scrollbar {
+            width: 4px;
+        }
+        .card::-webkit-scrollbar-thumb {
+            background: #b380ff;
+            border-radius: 10px;
+        }
+
+        .card.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nome {
+            font-size: 3rem;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 20px #b380ff;
+            margin-bottom: 4px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .subtitulo {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,0.05);
+            padding: 6px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(224,179,255,0.3);
+            color: #ccaaff;
+        }
+
+        .heart-pulse-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .heart-pulse {
+            font-size: 5rem;
+            display: inline-block;
+            animation: softPulse 2.2s infinite;
+            filter: drop-shadow(0 0 20px #e0b3ff);
+            color: #ffb3d9;
+        }
+
+        @keyframes softPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 35px #ff99cc); }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .carta {
+            background: rgba(30,20,45,0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid rgba(224,179,255,0.3);
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.7;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .carta p {
+            margin-bottom: 16px;
+        }
+
+        .carta .assinatura {
+            font-size: 2rem;
+            margin-top: 20px;
+            color: #ffb3d9;
+        }
+
+        .btn-continuar {
+            background: rgba(224,179,255,0.2);
+            border: 2px solid #b380ff;
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 400;
+            padding: 16px 24px;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 0 20px;
+            backdrop-filter: blur(10px);
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 2px;
+            -webkit-tap-highlight-color: transparent; /* Remove destaque ao tocar */
+        }
+
+        .btn-continuar:active {
+            background: #b380ff;
+            transform: scale(0.98);
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0.5;
+            color: #b3a3cc;
+        }
+
+        .toque-heart {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2.5rem;
+            z-index: 9999;
+            animation: toqueAnim 1.8s forwards;
+            filter: drop-shadow(0 0 15px #cc99ff);
+            color: #ffb3d9;
+        }
+
+        @keyframes toqueAnim {
+            0% { opacity: 1; transform: scale(0.4) translateY(0); }
+            100% { opacity: 0; transform: scale(2) translateY(-120px); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <main class="card" id="mainCard">
+        <h1 class="nome" id="nomeDestinataria">Maria</h1>
+        <div class="subtitulo">✨ feliz dia da mulher ✨</div>
+
+        <div class="heart-pulse-container">
+            <span class="heart-pulse">💙</span>
+        </div>
+
+        <div class="carta">
+            <p>minha Loirinha 💙,</p>
+            <p>hoje é seu dia, dia da mulher, um dia tão especial, quero apenas lembrar o quanto sua existência ilumina o mundo. sua delicadeza, seu jeito único de ser, tudo em você é poesia.</p>
+            <p>que a vida te retribua todo o brilho que você espalha. Não a palavras que possam explicar a admiração que sinto por você, mesmo com tão pouco tempo que nos conhecemos kkkk.</p>
+            <p>com carinho,</p>
+            <div class="assinatura">💫 wendel 💫</div>
+        </div>
+
+        <button class="btn-continuar" id="btnContinuar">💙 continuar 💙</button>
+        <div class="footer">toque na tela ✨</div>
+    </main>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ==================== CONFIGURAÇÕES ====================
+            const NOME = "Maria";
+            document.getElementById('nomeDestinataria').innerText = NOME;
+            document.title = `💙 ${NOME} • eu te amo 💙`;
+
+            // ==================== CORAÇÕES FLUTUANTES ====================
+            const heartsContainer = document.getElementById('floatingHearts');
+            const heartSymbols = ['❤️', '💜', '💙', '🤍', '💗', '💞', '❣️'];
+            function criarCoracaoFlutuante() {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-float');
+                heart.style.fontSize = (Math.random() * 1.8 + 1.2) + 'rem';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.animationDuration = (Math.random() * 8 + 7) + 's';
+                heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                heartsContainer.appendChild(heart);
+                setTimeout(() => heart.remove(), 18000);
+            }
+            for (let i = 0; i < 12; i++) setTimeout(criarCoracaoFlutuante, i * 400);
+            setInterval(criarCoracaoFlutuante, 2500);
+
+            // ==================== PARTÍCULAS (CANVAS) ====================
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+
+            // --- CORREÇÃO: Aumentei para 800 para o texto ficar bem preenchido ---
+            const PARTICLE_COUNT = 800; 
+            const TRACE_LENGTH = 4;
+            const colors = ['#e0b3ff', '#b380ff', '#cc99ff', '#d9b3ff', '#ffb3d9', '#ff99cc'];
+            const blueColor = '#3399ff';
+
+            // Estados da animação
+            const STATE_IDLE = 'idle';               // partículas livres (antes do clique)
+            const STATE_SEQUENCE = 'sequence';        // mostrando eu, te, amo
+            const STATE_PAUSE = 'pause';              // pausa de 3s após "amo"
+            const STATE_BLUE_HEART = 'blueHeart';     // coração azul fixo
+
+            let currentState = STATE_IDLE;
+            let sequenceStep = 0;                      // 0=eu, 1=te, 2=amo
+            let sequenceStartTime = 0;
+            const WORD_DURATION = 5000;                // 5 segundos para cada palavra (mais tempo para ler)
+            const PAUSE_DURATION = 3000;                // 3 segundos de pausa após "amo"
+
+            let particles = [];
+            let targets = [];
+            let assignedTargets = [];
+
+            // Interação com toque (repulsão)
+            let mouseX = -1000, mouseY = -1000;
+            const REPEL_RADIUS = 80;
+            const REPEL_FORCE = 0.15;
+
+            // ---------- Funções para gerar pontos das formas ----------
+            function generateHeartPoints(count, flip = false) {
+                const points = [];
+                for (let i = 0; i < count; i++) {
+                    const t = (i / count) * 2 * Math.PI;
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    let y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+                    if (flip) y = -y; // corrige orientação (ponta para cima)
+                    // Normalizar para [0,1] (aproximadamente)
+                    const nx = (x + 16) / 32;
+                    const ny = (y + 16) / 32;
+                    points.push({ x: nx, y: ny });
+                }
+                return points;
+            }
+
+            function generateTextPoints(text, count) {
+                const offCanvas = document.createElement('canvas');
+                const offCtx = offCanvas.getContext('2d');
+                offCanvas.width = 400;
+                offCanvas.height = 200;
+                offCtx.fillStyle = '#000';
+                offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+                offCtx.fillStyle = '#fff';
+                offCtx.font = 'bold 130px "Montserrat", sans-serif';
+                offCtx.textAlign = 'center';
+                offCtx.textBaseline = 'middle';
+                offCtx.fillText(text, offCanvas.width/2, offCanvas.height/2);
+
+                const imageData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+                const data = imageData.data;
+                const candidates = [];
+                for (let y = 0; y < offCanvas.height; y += 2) {
+                    for (let x = 0; x < offCanvas.width; x += 2) {
+                        const idx = (y * offCanvas.width + x) * 4;
+                        if (data[idx] > 200) {
+                            candidates.push({ x: x / offCanvas.width, y: y / offCanvas.height });
+                        }
+                    }
+                }
+                // Fallback se nenhum ponto for encontrado
+                if (candidates.length === 0) {
+                    for (let i = 0; i < count; i++) candidates.push({ x: 0.5, y: 0.5 });
+                }
+                // Selecionar aleatoriamente 'count' pontos
+                const selected = [];
+                for (let i = 0; i < count; i++) {
+                    selected.push(candidates[Math.floor(Math.random() * candidates.length)]);
+                }
+                return selected;
+            }
+
+            // ==================== CORREÇÃO AQUI ====================
+            // Inicializamos as variáveis vazias e o coração (que não depende de fonte)
+            let euTargets = [];
+            let teTargets = [];
+            let amoTargets = [];
+            let heartTargets = generateHeartPoints(PARTICLE_COUNT, true); 
+
+            // Criamos a função que vai gerar as palavras só depois da fonte carregar
+            function prepararAlvos() {
+                euTargets = generateTextPoints('eu', PARTICLE_COUNT);
+                teTargets = generateTextPoints('te', PARTICLE_COUNT);
+                amoTargets = generateTextPoints('amo', PARTICLE_COUNT);
+            }
+
+            // Avisamos o navegador para esperar as fontes ficarem prontas
+            if (document.fonts) {
+                document.fonts.ready.then(prepararAlvos);
+            } else {
+                window.addEventListener('load', prepararAlvos);
+            }
+            // =======================================================
+
+            // Inicializar partículas
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const x = Math.random() * width;
+                    const y = Math.random() * height;
+                    const trace = [];
+                    for (let j = 0; j < TRACE_LENGTH; j++) trace.push({ x, y });
+                    particles.push({
+                        x, y,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        size: Math.random() * 1.5 + 1.5, // partículas ligeiramente menores e mais concentradas
+                        trace
+                    });
+                }
+                assignedTargets = Array(PARTICLE_COUNT).fill(0).map(() => Math.floor(Math.random() * PARTICLE_COUNT));
+            }
+
+            // Iniciar sequência (chamado ao clicar em "continuar")
+            function startSequence() {
+                currentState = STATE_SEQUENCE;
+                sequenceStep = 0;
+                targets = euTargets; // primeira palavra: "eu"
+                shuffleAssignedTargets();
+                sequenceStartTime = performance.now();
+            }
+
+            // Embaralha os índices dos alvos (para distribuição aleatória)
+            function shuffleAssignedTargets() {
+                const indices = Array.from({ length: PARTICLE_COUNT }, (_, i) => i);
+                for (let i = indices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [indices[i], indices[j]] = [indices[j], indices[i]];
+                }
+                assignedTargets = indices;
+            }
+
+            // Avançar para a próxima etapa
+            function nextStep() {
+                if (sequenceStep === 0) {
+                    sequenceStep = 1;
+                    targets = teTargets;
+                } else if (sequenceStep === 1) {
+                    sequenceStep = 2;
+                    targets = amoTargets;
+                } else {
+                    currentState = STATE_PAUSE;
+                    sequenceStartTime = performance.now();
+                    return;
+                }
+                shuffleAssignedTargets();
+                sequenceStartTime = performance.now();
+            }
+
+            // Atualizar partículas (física)
+            function updateParticles() {
+                const now = performance.now();
+
+                // Máquina de estados
+                if (currentState === STATE_SEQUENCE) {
+                    if (now - sequenceStartTime >= WORD_DURATION) {
+                        nextStep();
+                    }
+                } else if (currentState === STATE_PAUSE) {
+                    if (now - sequenceStartTime >= PAUSE_DURATION) {
+                        currentState = STATE_BLUE_HEART;
+                        targets = heartTargets;
+                        shuffleAssignedTargets();
+                    }
+                }
+
+                // Atualizar cada partícula
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+
+                    // Força de atração
+                    if (currentState !== STATE_IDLE && targets && targets.length > 0) {
+                        const targetIdx = assignedTargets[i];
+                        const target = targets[targetIdx];
+                        const tx = target.x * width;
+                        const ty = target.y * height;
+
+                        const dx = tx - p.x;
+                        const dy = ty - p.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist > 1) {
+                            // --- CORREÇÃO: Força aumentada de 0.08 para 0.12 para unir mais as letras ---
+                            const force = 0.12; 
+                            p.vx += dx * force;
+                            p.vy += dy * force;
+                        }
+                        // --- CORREÇÃO: Ruído diminuído de 0.02 para 0.005 para elas não tremerem muito ---
+                        p.vx += (Math.random() - 0.5) * 0.005;
+                        p.vy += (Math.random() - 0.5) * 0.005;
+                    } else {
+                        p.vx += (Math.random() - 0.5) * 0.02;
+                        p.vy += (Math.random() - 0.5) * 0.02;
+
+                        const dx = p.x - mouseX;
+                        const dy = p.y - mouseY;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < REPEL_RADIUS) {
+                            const force = (REPEL_RADIUS - dist) / REPEL_RADIUS * REPEL_FORCE;
+                            const angle = Math.atan2(dy, dx);
+                            p.vx += Math.cos(angle) * force;
+                            p.vy += Math.sin(angle) * force;
+                        }
+                    }
+
+                    const maxSpeed = (currentState === STATE_IDLE) ? 1.0 : 1.5;
+                    let sp = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+                    if (sp > maxSpeed) {
+                        p.vx = (p.vx / sp) * maxSpeed;
+                        p.vy = (p.vy / sp) * maxSpeed;
+                    }
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Rebater nas bordas
+                    if (p.x < 0) { p.x = 0; p.vx *= -0.5; }
+                    if (p.x > width) { p.x = width; p.vx *= -0.5; }
+                    if (p.y < 0) { p.y = 0; p.vy *= -0.5; }
+                    if (p.y > height) { p.y = height; p.vy *= -0.5; }
+
+                    // Atualizar rastro
+                    for (let j = TRACE_LENGTH - 1; j > 0; j--) {
+                        p.trace[j].x = p.trace[j-1].x;
+                        p.trace[j].y = p.trace[j-1].y;
+                    }
+                    p.trace[0].x = p.x;
+                    p.trace[0].y = p.y;
+                }
+            }
+
+            // Desenhar partículas
+            function drawParticles() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let p of particles) {
+                    let baseColor = p.color;
+                    if (currentState === STATE_BLUE_HEART) {
+                        baseColor = blueColor;
+                    }
+
+                    for (let j = 0; j < TRACE_LENGTH; j++) {
+                        const alpha = 0.7 * (1 - j / TRACE_LENGTH);
+                        const size = p.size * (1 - j * 0.1);
+                        const r = parseInt(baseColor.slice(1,3), 16);
+                        const g = parseInt(baseColor.slice(3,5), 16);
+                        const b = parseInt(baseColor.slice(5,7), 16);
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(p.trace[j].x, p.trace[j].y, size, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // Loop de animação
+            function animate() {
+                updateParticles();
+                drawParticles();
+                requestAnimationFrame(animate);
+            }
+
+            // Redimensionar canvas
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                if (particles.length === 0) initParticles();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+
+            // Eventos de mouse/toque para repulsão
+            function updateMouse(e) {
+                const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+                const clientY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+                mouseX = clientX;
+                mouseY = clientY;
+            }
+            function resetMouse() { mouseX = -1000; mouseY = -1000; }
+
+            document.addEventListener('mousemove', updateMouse);
+            
+            // --- CORREÇÃO: Permite a rolagem nativa quando o usuário toca na carta ---
+            document.addEventListener('touchmove', e => { 
+                if (!e.target.closest('.card')) {
+                    e.preventDefault(); 
+                }
+                updateMouse(e); 
+            }, { passive: false });
+            
+            document.addEventListener('mouseleave', resetMouse);
+            document.addEventListener('touchend', resetMouse);
+            document.addEventListener('touchcancel', resetMouse);
+
+            // Inicializar canvas e animação
+            resizeCanvas();
+            initParticles();
+            animate();
+
+            // ==================== BOTÃO CONTINUAR ====================
+            const btnContinuar = document.getElementById('btnContinuar');
+            const mainCard = document.getElementById('mainCard');
+
+            btnContinuar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mainCard.classList.add('hidden'); // esconde o cartão
+                startSequence(); // inicia a sequência de palavras
+            });
+
+            // ==================== CORAÇÕES AO TOCAR (efeito extra) ====================
+            function criarCoracaoToque(x, y) {
+                const coracao = document.createElement('div');
+                coracao.classList.add('toque-heart');
+                coracao.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                coracao.style.left = (x - 20) + 'px';
+                coracao.style.top = (y - 30) + 'px';
+                coracao.style.fontSize = (Math.random() * 2.5 + 2) + 'rem';
+                document.body.appendChild(coracao);
+                setTimeout(() => coracao.remove(), 2000);
+            }
+
+            document.addEventListener('click', e => criarCoracaoToque(e.clientX, e.clientY));
+            
+            // --- CORREÇÃO: Permite a rolagem no iOS/Android sem barrar o evento touch inicial ---
+            document.addEventListener('touchstart', e => {
+                if (!e.target.closest('.card')) {
+                    e.preventDefault(); 
+                }
+                const touch = e.touches[0];
+                criarCoracaoToque(touch.clientX, touch.clientY);
+            }, { passive: false });
+
+        })();
+    </script>
+</body>
+</html>
